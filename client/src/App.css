@@ -1,7 +1,6 @@
-/* color: #ee4950 */
-/* color: #080808 */
-
-body{
-    /* background-color: #141414; */
-    /* color: aliceblue; */
+/* App-level styles — layout handled by index.css */
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }

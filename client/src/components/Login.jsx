@@ -1,33 +1,82 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react';
 import { GeneralContext } from '../context/GeneralContext';
+import './Auth.css';
 
-const Login = ({setAuthType}) => {
+const Login = ({ setAuthType }) => {
+  const { setEmail, setPassword, login, authError, authLoading } = useContext(GeneralContext);
+  const [showPass, setShowPass] = useState(false);
 
-  const {setEmail, setPassword, login} = useContext(GeneralContext);
-
-  const handleLogin = async (e) =>{
+  const handleLogin = async (e) => {
     e.preventDefault();
     await login();
-  }
+  };
 
   return (
-    <form className="authForm">
-        <h2>Login</h2>
-        <div className="form-floating mb-3 authFormInputs">
-            <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" 
-                                                                  onChange={(e) => setEmail(e.target.value)} />
-            <label htmlFor="floatingInput">Email address</label>
-        </div>
-            <div className="form-floating mb-3 authFormInputs">
-            <input type="password" className="form-control" id="floatingPassword" placeholder="Password" 
-                                                                  onChange={(e) => setPassword(e.target.value)} /> 
-            <label htmlFor="floatingPassword">Password</label>
-        </div>
-        <button type="submit" className="btn btn-primary" onClick={handleLogin}>Sign in</button>
+    <form className="auth-form" onSubmit={handleLogin} noValidate>
+      <div className="auth-form-header">
+        <h2>Welcome back</h2>
+        <p>Sign in to your NextGig account</p>
+      </div>
 
-        <p>Not registered? <span onClick={()=> setAuthType('register')}>Register</span></p>
+      {authError && (
+        <div className="error-message" role="alert">
+          <span>⚠</span> {authError}
+        </div>
+      )}
+
+      <div className="form-group">
+        <label className="form-label" htmlFor="login-email">Email address</label>
+        <input
+          type="email"
+          id="login-email"
+          className="form-input"
+          placeholder="you@example.com"
+          autoComplete="email"
+          required
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      <div className="form-group">
+        <label className="form-label" htmlFor="login-password">Password</label>
+        <div className="input-with-action">
+          <input
+            type={showPass ? 'text' : 'password'}
+            id="login-password"
+            className="form-input"
+            placeholder="Enter your password"
+            autoComplete="current-password"
+            required
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            type="button"
+            className="input-action-btn"
+            onClick={() => setShowPass(!showPass)}
+            tabIndex={-1}
+          >
+            {showPass ? '🙈' : '👁️'}
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        className="btn btn-primary"
+        style={{ width: '100%' }}
+        disabled={authLoading}
+      >
+        {authLoading ? <><span className="spinner" />Signing in...</> : 'Sign In'}
+      </button>
+
+      <p className="auth-switch">
+        Don't have an account?{' '}
+        <button type="button" className="auth-switch-btn" onClick={() => setAuthType('register')}>
+          Create one free
+        </button>
+      </p>
     </form>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

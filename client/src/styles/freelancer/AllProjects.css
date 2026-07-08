@@ -1,131 +1,177 @@
-.all-projects-page{
-    display: flex;
-    justify-content: space-evenly;
-    margin-top: 5vh;
+/* ── All Projects Layout ── */
+.all-projects-layout {
+  display: flex;
+  min-height: calc(100vh - var(--navbar-height));
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6);
+  gap: var(--space-8);
 }
 
-.project-filters{
-
-    width: 20%;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    padding: 3vh 1.5vw;
-    height: 82vh;
-    border-radius: 0.7rem;
-    overflow-y: scroll;
+/* Sidebar */
+.projects-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(var(--navbar-height) + var(--space-4));
+  height: fit-content;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
 }
 
-.project-filters h3{
-    
-    font-size: 1.4rem;
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
 }
 
-.filters{
-
-    margin-top: 3vh;
+.sidebar-section {
+  padding-top: var(--space-4);
 }
 
-.filters h5{
-    font-size: 1.1rem;
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
-.filter-options{
-    font-size: 0.9rem;
-
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
 }
 
+.filter-checkbox:hover { color: var(--text-primary); }
 
-.projects-list{
-
-    width: 75%;
-    height: 82vh;
-
-    overflow-y: scroll;
-
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    border-radius: 0.7rem;
-    padding: 3vh 2vw;
-
-    display: flex;
-    flex-direction: column;
-
+.filter-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
 }
 
-.projects-list hr{
+/* Main */
+.projects-main { flex: 1; min-width: 0; }
 
-    color: rgb(95, 96, 97);
+.projects-main-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
 }
 
-.projects-list h3{
-
-
+.projects-search {
+  width: 280px;
+  max-width: 100%;
 }
 
-.listed-project:hover{
-    background-color: #efefef58;
-    cursor: pointer;
-
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
 }
 
-.listed-project h5{
-    font-size: 0.9rem;
-
+.projects-list-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
-
-.listed-project p{
-
-    font-size: 0.9rem;
+/* Project Card */
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
-
-.listed-project-head{
-
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 3vh;
+.project-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
 }
 
-.listed-project-head h3{
-    width: 80%;
-    margin: 0;
-    font-size: 1.4rem;
-    color: #227396b0;
+.project-title {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+  line-height: 1.3;
 }
 
-.listed-project-head p{
-
-    margin: 0;
+.project-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
 }
 
-.listed-project .skills{
-
-    display: flex;
-    gap: 10px;
+.project-desc {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.listed-project .skills h6{
-
-    font-size: 0.8rem;
-    font-weight: 400;
-    color: #ee4950;
-    border: 1px solid #ee4950;
-    padding: 5px 10px;
-    border-radius: 1rem;
+.project-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
-.listed-project .bids-data{
-
-    display: flex;
-    gap: 30px;
-    margin-top: 3vh;
+.project-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
 }
 
-.listed-project .bids-data p{
-
-    
+.project-budget {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.listed-project .bids-data h6{
+.budget-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 
-    
+.budget-value {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--success);
+}
+
+.project-bids {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.avg-bid {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .all-projects-layout { flex-direction: column; }
+  .projects-sidebar { width: 100%; position: static; }
+  .filter-options { flex-direction: row; flex-wrap: wrap; }
 }

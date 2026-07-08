@@ -1,35 +1,147 @@
-SB Works - MERN Freelancing Platform
-A full-stack freelancing platform built with the MERN stack (MongoDB, Express.js, React, Node.js). It connects clients with skilled freelancers through a secure and efficient system featuring project posting, a bidding system, real-time chat, and admin oversight.
 
-🔧 Tech Stack
-Frontend: React.js, Socket.IO, Bootstrap, Material UI
+=======
+# NextGig — Freelancing Platform
 
-Backend: Node.js, Express.js
+A modern, full-stack freelancing platform connecting clients with world-class freelancers. Built with the MERN stack.
 
-Database: MongoDB, Mongoose
+## 🚀 Tech Stack
 
-Development: Visual Studio Code, Git & GitHub
+- **Frontend**: React, React Router v6, CSS Variables, Socket.IO Client
+- **Backend**: Node.js, Express, MongoDB (Mongoose), Socket.IO, bcrypt, dotenv
+- **Deployment**: Vercel (frontend) + Render (backend) + MongoDB Atlas
 
-📂 Repository Contents
-📁 client/ - Contains the frontend React application.
+---
 
-📁 server/ - Contains the backend Node.js application.
+## 📂 Project Structure
 
-📁 documentation/ - All 9 project planning and design documents.
+```
+Free-Lance-App/
+├── client/          # React frontend
+│   ├── src/
+│   │   ├── api.js           # Central axios instance
+│   │   ├── context/         # Global state (GeneralContext)
+│   │   ├── pages/           # Route-level components
+│   │   │   ├── freelancer/  # Freelancer dashboard, projects, bids
+│   │   │   ├── client/      # Client dashboard, post projects, review
+│   │   │   └── admin/       # Admin overview, users, projects
+│   │   ├── components/      # Navbar, Login, Register
+│   │   └── styles/          # Page-specific CSS
+│   └── vercel.json          # Vercel SPA routing
+└── server/          # Express backend
+    ├── index.js             # Routes, MongoDB connection, server
+    ├── Schema.js            # Mongoose models
+    ├── SocketHandler.js     # Socket.IO chat events
+    └── .env.example         # Environment variable template
+```
 
-📸 screenshots/ - Output screenshots of the application.
+---
 
-🎥 video/ - Project demonstration video.
+## ⚙️ Local Development
 
-📄 Project Report.md - The final, comprehensive project report.
+### 1. Clone & Install
 
-📄 README.md - This README file.
+```bash
+git clone <repo-url>
+cd Free-Lance-App
 
-🚀 Core Features
-User Roles: Separate dashboards for Clients, Freelancers, and Admins.
+# Backend
+cd server && npm install
+cp .env.example .env   # Fill in your values
 
-Project Workflow: Clients post jobs, and freelancers bid on them.
+# Frontend
+cd ../client && npm install
+cp .env.example .env   # Fill in your values
+```
 
-Real-time Chat: Integrated messaging for seamless collaboration.
+### 2. Start Services
 
-Admin Oversight: A dedicated dashboard to ensure platform integrity.
+```bash
+# Terminal 1 — Backend
+cd server && npm start
+
+# Terminal 2 — Frontend
+cd client && npm start
+```
+
+---
+
+## 🌍 Deployment
+
+### Backend → Render
+
+1. Connect your GitHub repo to [render.com](https://render.com)
+2. Create a **Web Service** pointing to the `server/` directory
+3. Set **Build Command**: `npm install`
+4. Set **Start Command**: `node index.js`
+5. Add environment variables from `server/.env.example`
+
+### Frontend → Vercel
+
+1. Connect your GitHub repo to [vercel.com](https://vercel.com)
+2. Set **Root Directory**: `client`
+3. Set **Build Command**: `npm run build`
+4. Set **Output Directory**: `build`
+5. Add `REACT_APP_API_URL` = your Render backend URL
+
+### Database → MongoDB Atlas
+
+1. Create a free cluster at [mongodb.com/atlas](https://www.mongodb.com/cloud/atlas)
+2. Get your connection string and set as `MONGO_URI` in Render environment variables
+3. Whitelist `0.0.0.0/0` in Network Access for Render
+
+---
+
+## 🔑 Environment Variables
+
+### Server (`server/.env`)
+
+| Variable | Description |
+|---|---|
+| `PORT` | Server port (default: 6001) |
+| `MONGO_URI` | MongoDB connection string |
+| `CLIENT_ORIGIN` | Frontend URL for CORS |
+
+### Client (`client/.env`)
+
+| Variable | Description |
+|---|---|
+| `REACT_APP_API_URL` | Backend API base URL |
+
+---
+
+## 🛣️ API Endpoints
+
+| Method | Route | Description |
+|---|---|---|
+| POST | `/register` | Register new user |
+| POST | `/login` | Login user |
+| GET | `/fetch-freelancer/:id` | Get freelancer profile |
+| POST | `/update-freelancer` | Update freelancer profile |
+| GET | `/fetch-projects` | Get all projects |
+| GET | `/fetch-project/:id` | Get single project |
+| POST | `/new-project` | Create new project |
+| POST | `/make-bid` | Submit a bid |
+| GET | `/fetch-applications` | Get all applications |
+| GET | `/approve-application/:id` | Approve a bid |
+| GET | `/reject-application/:id` | Reject a bid |
+| POST | `/submit-project` | Submit completed work |
+| GET | `/approve-submission/:id` | Approve submitted work |
+| GET | `/reject-submission/:id` | Reject submitted work |
+| GET | `/fetch-users` | Get all users (admin) |
+| GET | `/fetch-chats/:id` | Get project chat messages |
+
+---
+
+## 🎯 Features
+
+- **Authentication**: JWT-less session via localStorage (username, email, userId, usertype)
+- **Role-based Access**: Freelancer / Client / Admin dashboards
+- **Real-time Chat**: Socket.IO messaging per project room
+- **Bid System**: Freelancers submit proposals; clients approve/reject
+- **Project Workflow**: Post → Bid → Assign → Submit → Review → Complete
+- **Admin Panel**: View all users, projects, and applications
+
+---
+
+© 2024 NextGig. All rights reserved.
+>>>>>>> d5bb65e (Redesign NextGig and prepare for deployment)

@@ -1,47 +1,128 @@
-import React, { useContext } from 'react'
-
+import React, { useContext, useState } from 'react';
 import { GeneralContext } from '../context/GeneralContext';
+import './Auth.css';
 
-const Register = ({setAuthType}) => {
+const Register = ({ setAuthType }) => {
+  const { setUsername, setEmail, setPassword, setUsertype, register, authError, authLoading } = useContext(GeneralContext);
+  const [selectedRole, setSelectedRole] = useState('');
+  const [showPass, setShowPass] = useState(false);
 
-
-  const {setUsername, setEmail, setPassword, setUsertype, register} = useContext(GeneralContext);
-
-  const handleRegister = async (e) =>{
+  const handleRegister = async (e) => {
     e.preventDefault();
     await register();
-  }
+  };
+
+  const handleRoleSelect = (role) => {
+    setSelectedRole(role);
+    setUsertype(role);
+  };
 
   return (
-    <form className="authForm">
-    <h2>Register</h2>
-    <div className="form-floating mb-3 authFormInputs">
-        <input type="text" className="form-control" id="floatingInput" placeholder="username"
-                                                   onChange={(e)=> setUsername(e.target.value)} />
-        <label htmlFor="floatingInput">Username</label>
-    </div>
-    <div className="form-floating mb-3 authFormInputs">
-        <input type="email" className="form-control" id="floatingEmail" placeholder="name@example.com"
-                                                   onChange={(e)=> setEmail(e.target.value)} />
-        <label htmlFor="floatingInput">Email address</label>
-    </div>
-    <div className="form-floating mb-3 authFormInputs">
-        <input type="password" className="form-control" id="floatingPassword" placeholder="Password"
-                                                   onChange={(e)=> setPassword(e.target.value)} /> 
-        <label htmlFor="floatingPassword">Password</label>
-    </div>
-    <select className="form-select form-select-lg mb-3" aria-label=".form-select-lg example" 
-                                                  onChange={(e)=> setUsertype(e.target.value)}>
-      <option value="">User type</option>
-      <option value="freelancer">Freelancer</option>
-      <option value="client">Client</option>
-      <option value="admin">Admin</option>
-    </select>
+    <form className="auth-form" onSubmit={handleRegister} noValidate>
+      <div className="auth-form-header">
+        <h2>Create your account</h2>
+        <p>Join NextGig and start building today</p>
+      </div>
 
-    <button className="btn btn-primary" onClick={handleRegister}>Sign up</button>
-    <p>Already registered? <span onClick={()=> setAuthType('login')}>Login</span></p>
-</form>
-  )
-}
+      {authError && (
+        <div className="error-message" role="alert">
+          <span>⚠</span> {authError}
+        </div>
+      )}
 
-export default Register
+      {/* Role Selection */}
+      <div className="form-group">
+        <label className="form-label">I want to</label>
+        <div className="role-cards">
+          <div
+            className={`role-card${selectedRole === 'freelancer' ? ' role-card--active' : ''}`}
+            onClick={() => handleRoleSelect('freelancer')}
+          >
+            <span className="role-icon">🚀</span>
+            <div>
+              <div className="role-title">Work as Freelancer</div>
+              <div className="role-desc">Find projects & earn</div>
+            </div>
+          </div>
+          <div
+            className={`role-card${selectedRole === 'client' ? ' role-card--active' : ''}`}
+            onClick={() => handleRoleSelect('client')}
+          >
+            <span className="role-icon">🏢</span>
+            <div>
+              <div className="role-title">Hire Freelancers</div>
+              <div className="role-desc">Post projects & grow</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label" htmlFor="reg-username">Username</label>
+        <input
+          type="text"
+          id="reg-username"
+          className="form-input"
+          placeholder="Choose a username"
+          autoComplete="username"
+          required
+          onChange={(e) => setUsername(e.target.value)}
+        />
+      </div>
+
+      <div className="form-group">
+        <label className="form-label" htmlFor="reg-email">Email address</label>
+        <input
+          type="email"
+          id="reg-email"
+          className="form-input"
+          placeholder="you@example.com"
+          autoComplete="email"
+          required
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      <div className="form-group">
+        <label className="form-label" htmlFor="reg-password">Password</label>
+        <div className="input-with-action">
+          <input
+            type={showPass ? 'text' : 'password'}
+            id="reg-password"
+            className="form-input"
+            placeholder="Create a strong password"
+            autoComplete="new-password"
+            required
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            type="button"
+            className="input-action-btn"
+            onClick={() => setShowPass(!showPass)}
+            tabIndex={-1}
+          >
+            {showPass ? '🙈' : '👁️'}
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        className="btn btn-primary"
+        style={{ width: '100%' }}
+        disabled={authLoading || !selectedRole}
+      >
+        {authLoading ? <><span className="spinner" />Creating account...</> : 'Create Account'}
+      </button>
+
+      <p className="auth-switch">
+        Already have an account?{' '}
+        <button type="button" className="auth-switch-btn" onClick={() => setAuthType('login')}>
+          Sign in
+        </button>
+      </p>
+    </form>
+  );
+};
+
+export default Register;

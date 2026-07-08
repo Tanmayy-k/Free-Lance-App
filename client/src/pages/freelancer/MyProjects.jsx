@@ -1,86 +1,117 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
-import {useNavigate} from 'react-router-dom'
-import '../../styles/freelancer/MyProjects.css'
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import API from '../../api';
+
+const getStatusBadge = (status) => {
+  if (status === 'Available') return <span className="badge badge-success">Available</span>;
+  if (status === 'Assigned') return <span className="badge badge-warning">In Progress</span>;
+  if (status === 'Completed') return <span className="badge badge-muted">Completed</span>;
+  return <span className="badge badge-muted">{status}</span>;
+};
 
 const MyProjects = () => {
-
   const navigate = useNavigate();
-
   const [projects, setProjects] = useState([]);
-
   const [displayProjects, setDisplayProjects] = useState([]);
+  const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const userId = localStorage.getItem('userId');
 
-  useEffect(()=>{
-    fetchProjects();
-  },[])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchProjects(); }, []);
 
-  const fetchProjects = async()=>{
-    await axios.get('http://localhost:6001/fetch-projects').then(
-      (response)=>{
-        const pros = response.data.filter(pro=> pro.freelancerId === localStorage.getItem('userId'));
-        setProjects(pros);
-        setDisplayProjects(pros.reverse());
-      }
-    ).catch((err)=>{
-      console.log(err);
-      fetchProjects();
-    })
-  }
+  const fetchProjects = async () => {
+    setLoading(true);
+    try {
+      const res = await API.get('/fetch-projects');
+      const mine = res.data.filter(p => p.freelancerId === userId).reverse();
+      setProjects(mine);
+      setDisplayProjects(mine);
+    } catch (err) { /* silent */ }
+    finally { setLoading(false); }
+  };
 
-
-
-const handleFilterChange = (data) =>{
-  if(data === ""){
-    setDisplayProjects(projects.reverse());
-  } else  if(data === "In Progress"){
-    setDisplayProjects(projects.filter((project)=> project.status === "Assigned").reverse());
-  } else  if(data === "Completed"){
-    setDisplayProjects(projects.filter((project)=> project.status === "Completed").reverse());
-  }
-}
-
-
+  useEffect(() => {
+    if (filter === 'all') setDisplayProjects(projects);
+    else if (filter === 'active') setDisplayProjects(projects.filter(p => p.status === 'Assigned'));
+    else if (filter === 'completed') setDisplayProjects(projects.filter(p => p.status === 'Completed'));
+  }, [filter, projects]);
 
   return (
-    <div className="client-projects-page">
-
-      <div className="client-projects-list">
-        <div className="client-projects-header">
-              <h3>My projects</h3>
-                <select className='form-control' placeholder='Project status' onChange={(e)=> handleFilterChange(e.target.value)} >
-                  <option value="">Choose project status</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
-                </select>
-
-        </div>
-        <hr />
-
-        {
-          displayProjects.map((project)=>(
-            <div className="listed-project" key={project._id} onClick={()=> navigate(`/project/${project._id}`)}>
-              <div className='listed-project-head'>
-                  <h3>{project.title}</h3>
-                  <p>{project.postedDate}</p>
-              </div>
-              <h5>Budget -  &#8377; {project.budget}</h5>
-              <p>{project.description}</p>
-    
-              <div className="bids-data">
-                {/* <p>Applications - {project.applications.length}</p> */}
-                <h6>Status - {project.status} </h6>
-              </div>
-              <hr />
-            </div>
-          ))
-        }
-        
-
+    <div className="page-container animate-fade-in">
+      <div className="page-header">
+        <h1 className="page-title">My Projects</h1>
+        <p className="page-subtitle">Projects assigned to you</p>
       </div>
 
-    </div>
-  )
-}
+      {/* Filter Tabs */}
+      <div className="filter-tabs" style={{ marginBottom: 'var(--space-6)' }}>
+        {[
+          { label: 'All', value: 'all' },
+          { label: 'In Progress', value: 'active' },
+          { label: 'Completed', value: 'completed' },
+        ].map(tab => (
+          <button
+            key={tab.value}
+            className={`filter-tab${filter === tab.value ? ' filter-tab--active' : ''}`}
+            onClick={() => setFilter(tab.value)}
+          >
+            {tab.label}
+            <span className="filter-tab-count">
+              {tab.value === 'all' ? projects.length
+                : tab.value === 'active' ? projects.filter(p => p.status === 'Assigned').length
+                : projects.filter(p => p.status === 'Completed').length}
+            </span>
+          </button>
+        ))}
+      </div>
 
-export default MyProjects
+      {loading ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          {[...Array(3)].map((_, i) => <div key={i} className="skeleton" style={{ height: 140, borderRadius: 14 }} />)}
+        </div>
+      ) : displayProjects.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-state-icon">💼</div>
+          <p className="empty-state-title">No projects here</p>
+          <p className="empty-state-desc">
+            {filter === 'all'
+              ? 'You haven\'t been assigned any projects yet.'
+              : `No ${filter === 'active' ? 'active' : 'completed'} projects found.`}
+          </p>
+          <button className="btn btn-primary" onClick={() => navigate('/all-projects')}>Browse Projects</button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          {displayProjects.map(project => (
+            <div
+              key={project._id}
+              className="card card-clickable"
+              onClick={() => navigate(`/project/${project._id}`)}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-4)' }}>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ marginBottom: 'var(--space-1)' }}>{project.title}</h3>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    {project.postedDate ? new Date(project.postedDate).toLocaleDateString() : 'N/A'}
+                  </span>
+                  <p style={{ marginTop: 'var(--space-2)', fontSize: '0.9rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {project.description}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 'var(--space-2)', flexShrink: 0 }}>
+                  {getStatusBadge(project.status)}
+                  <span style={{ fontWeight: 700, color: 'var(--success)', fontSize: '1rem' }}>
+                    ₹{project.budget?.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default MyProjects;

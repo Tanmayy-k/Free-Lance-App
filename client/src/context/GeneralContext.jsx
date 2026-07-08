@@ -1,16 +1,14 @@
-import React, { createContext, useEffect, useState } from 'react';
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { createContext, useState } from 'react';
+import API from '../api';
+import { useNavigate } from 'react-router-dom';
 import socketIoClient from 'socket.io-client';
 
 export const GeneralContext = createContext();
 
-const GeneralContextProvider = ({children}) => {
+const GeneralContextProvider = ({ children }) => {
 
-  const WS = 'http://localhost:6001';
-
+  const WS = process.env.REACT_APP_API_URL || 'http://localhost:6001';
   const socket = socketIoClient(WS);
-
 
   const navigate = useNavigate();
 
@@ -18,82 +16,74 @@ const GeneralContextProvider = ({children}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [usertype, setUsertype] = useState('');
- 
-  
-  
-  
-  const login = async () =>{
-    try{
-      const loginInputs = {email, password}
-        await axios.post('http://localhost:6001/login', loginInputs)
-        .then( async (res)=>{
+  const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
 
-          localStorage.setItem('userId', res.data._id);
-            localStorage.setItem('usertype', res.data.usertype);
-            localStorage.setItem('username', res.data.username);
-            localStorage.setItem('email', res.data.email);
-            if(res.data.usertype === 'freelancer'){
-                navigate('/freelancer');
-            } else if(res.data.usertype === 'client'){
-              navigate('/client');
-            } else if(res.data.usertype === 'admin'){
-                navigate('/admin');
-            }
-          }).catch((err) =>{
-            alert("login failed!!");
-            console.log(err);
-          });
-          
-        }catch(err){
-          console.log(err);
-        }
-      }
-      
-  const inputs = {username, email, usertype, password};
+  const login = async () => {
+    setAuthError('');
+    setAuthLoading(true);
+    try {
+      const res = await API.post('/login', { email, password });
+      const data = res.data;
 
-  const register = async () =>{
-    try{
-        await axios.post('http://localhost:6001/register', inputs)
-        .then( async (res)=>{
-            localStorage.setItem('userId', res.data._id);
-            localStorage.setItem('usertype', res.data.usertype);
-            localStorage.setItem('username', res.data.username);
-            localStorage.setItem('email', res.data.email);
+      localStorage.setItem('userId', data._id);
+      localStorage.setItem('usertype', data.usertype);
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('email', data.email);
 
-            if(res.data.usertype === 'freelancer'){
-              navigate('/freelancer');
-          } else if(res.data.usertype === 'client'){
-            navigate('/client');
-          } else if(res.data.usertype === 'admin'){
-              navigate('/admin');
-          }
- 
-        }).catch((err) =>{
-            alert("registration failed!!");
-            console.log(err);
-        });
-    }catch(err){
-        console.log(err);
+      if (data.usertype === 'freelancer') navigate('/freelancer');
+      else if (data.usertype === 'client') navigate('/client');
+      else if (data.usertype === 'admin') navigate('/admin');
+    } catch (err) {
+      const msg = err.response?.data?.msg || 'Login failed. Please check your credentials.';
+      setAuthError(msg);
+    } finally {
+      setAuthLoading(false);
     }
-  }
+  };
 
+  const register = async () => {
+    setAuthError('');
+    setAuthLoading(true);
+    try {
+      const res = await API.post('/register', { username, email, password, usertype });
+      const data = res.data;
 
-  const logout = async () =>{
-    
+      localStorage.setItem('userId', data._id);
+      localStorage.setItem('usertype', data.usertype);
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('email', data.email);
+
+      if (data.usertype === 'freelancer') navigate('/freelancer');
+      else if (data.usertype === 'client') navigate('/client');
+      else if (data.usertype === 'admin') navigate('/admin');
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Registration failed. Please try again.';
+      setAuthError(msg);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const logout = () => {
     localStorage.clear();
-    for (let key in localStorage) {
-      if (localStorage.hasOwnProperty(key)) {
-        localStorage.removeItem(key);
-      }
-    }
-    
     navigate('/');
-  }
-
+  };
 
   return (
-    <GeneralContext.Provider value={{socket, login, register, logout, username, setUsername, email, setEmail, password, setPassword, usertype, setUsertype}} >{children}</GeneralContext.Provider>
-  )
-}
+    <GeneralContext.Provider value={{
+      socket,
+      login, register, logout,
+      username, setUsername,
+      email, setEmail,
+      password, setPassword,
+      usertype, setUsertype,
+      authError, setAuthError,
+      authLoading
+    }}>
+      {children}
+    </GeneralContext.Provider>
+  );
+};
 
-export default GeneralContextProvider
+export default GeneralContextProvider;
